@@ -1,0 +1,253 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--tg-theme-bg-color, #ffffff);
+  color: var(--tg-theme-text-color, #000000);
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+.page {
+  flex: 1;
+  padding: 16px;
+  padding-bottom: 80px;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: var(--tg-theme-bg-color, #ffffff);
+  border-top: 1px solid var(--tg-theme-hint-color, #e0e0e0);
+  display: flex;
+  z-index: 100;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-decoration: none;
+  color: var(--tg-theme-hint-color, #999);
+  font-size: 11px;
+  transition: color 0.2s;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.nav-item.active {
+  color: var(--tg-theme-button-color, #3390ec);
+}
+
+.nav-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* Cards */
+.card {
+  background: var(--tg-theme-secondary-bg-color, #f1f1f1);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.card-title {
+  font-size: 13px;
+  color: var(--tg-theme-hint-color, #999);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-value {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--tg-theme-text-color, #000);
+}
+
+/* Buttons */
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: var(--tg-theme-button-color, #3390ec);
+  color: var(--tg-theme-button-text-color, #ffffff);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.btn-secondary {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1.5px solid var(--tg-theme-button-color, #3390ec);
+  background: transparent;
+  color: var(--tg-theme-button-color, #3390ec);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+/* Plan cards */
+.plans-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.plan-card {
+  background: var(--tg-theme-secondary-bg-color, #f1f1f1);
+  border-radius: 12px;
+  padding: 14px 10px;
+  text-align: center;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.plan-card.active {
+  border-color: var(--tg-theme-button-color, #3390ec);
+}
+
+.plan-name {
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.plan-price {
+  font-size: 13px;
+  color: var(--tg-theme-hint-color, #999);
+  margin-bottom: 10px;
+}
+
+.plan-feature {
+  font-size: 12px;
+  margin-bottom: 3px;
+}
+
+/* Section header */
+.section-header {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--tg-theme-text-color, #000);
+}
+
+/* User info row */
+.user-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--tg-theme-button-color, #3390ec);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.user-name {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.user-username {
+  font-size: 14px;
+  color: var(--tg-theme-hint-color, #999);
+}
+
+/* Stats grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+/* History item */
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--tg-theme-hint-color, #e0e0e0);
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+.history-date {
+  font-size: 12px;
+  color: var(--tg-theme-hint-color, #999);
+}
+
+.history-action {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.history-credits {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.credits-plus {
+  color: #34c759;
+}
+
+.credits-minus {
+  color: var(--tg-theme-text-color, #000);
+}
+
+/* Settings row */
+.settings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  background: var(--tg-theme-secondary-bg-color, #f1f1f1);
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.settings-label {
+  font-size: 16px;
+}
+
+.settings-value {
+  font-size: 14px;
+  color: var(--tg-theme-hint-color, #999);
+}
