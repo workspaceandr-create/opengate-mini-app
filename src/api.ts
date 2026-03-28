@@ -24,6 +24,8 @@ export interface ProfileData {
   chat_id: string;
   username: string;
   full_name: string;
+  current_model: string;
+  plan: string;
   total_requests: number;
   tokens_used_month: number;
   active_dialogs: number;

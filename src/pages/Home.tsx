@@ -8,37 +8,43 @@ const PLAN_TOKENS: Record<string, number> = {
   PRO: 2_000_000,
 };
 
-const tgUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+const tgWebApp = (window as any).Telegram?.WebApp;
+const tgUser = tgWebApp?.initDataUnsafe?.user;
 
 export default function HomePage() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
+    tgWebApp?.ready?.();
     const chatId = tgUser?.id;
     if (!chatId) { setLoading(false); return; }
     fetchProfile(chatId)
-      .then(setProfile)
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .then(data => { setProfile(data); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
   }, []);
 
   const displayName = tgUser
     ? `${tgUser.first_name}${tgUser.last_name ? ' ' + tgUser.last_name : ''}`
-    : 'Пользователь';
-  const username = tgUser?.username ? `@${tgUser.username}` : '@username';
+    : profile?.full_name || 'Пользователь';
+  const username = tgUser?.username
+    ? `@${tgUser.username}`
+    : (profile?.username && profile.username !== 'no_username' ? `@${profile.username}` : '@username');
   const avatarLetter = displayName[0]?.toUpperCase() || 'П';
 
-  const plan = 'FREE';
-  const tokensTotal = PLAN_TOKENS[plan];
+  const plan = profile?.plan ?? 'FREE';
+  const tokensTotal = PLAN_TOKENS[plan] ?? 50_000;
   const tokensUsed = profile?.tokens_used_month ?? 0;
   const tokensBalance = Math.max(0, tokensTotal - tokensUsed);
-  const tokensK = (tokensBalance / 1000).toFixed(0);
+  const tokensK = tokensBalance >= 1000
+    ? (tokensBalance / 1000).toFixed(0) + 'к'
+    : String(tokensBalance);
   const percentUsed = Math.round((tokensUsed / tokensTotal) * 100);
 
   const requests = profile?.total_requests ?? 0;
   const dialogs = profile?.active_dialogs ?? 0;
-  const modelKey = profile?.last_model_key ?? 'model_deepseek';
+  const modelKey = profile?.current_model ?? profile?.last_model_key ?? 'model_deepseek';
   const modelName = MODEL_DISPLAY[modelKey] ?? 'DeepSeek';
   const activeDialog = profile?.active_dialog_title ?? '—';
 
@@ -59,15 +65,24 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Статистика */}
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>Загрузка...</div>
-      ) : (
+      {loading && (
+        <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>
+          Загрузка...
+        </div>
+      )}
+
+      {!loading && !tgUser && (
+        <div style={{ textAlign: 'center', padding: '32px 24px', color: 'var(--text-secondary)', fontSize: 14 }}>
+          Откройте приложение через бота @OpenGateAI_bot
+        </div>
+      )}
+
+      {!loading && tgUser && !error && (
         <>
           <div className="stats-grid">
             <div className="stat-card">
               <div className="stat-label">Токены</div>
-              <div className="stat-value">{tokensK}к</div>
+              <div className="stat-value">{tokensK}</div>
               <div className="stat-sub">осталось · {percentUsed}% исп.</div>
             </div>
             <div className="stat-card">
@@ -87,7 +102,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Активный диалог */}
           <div className="active-dialog-block">
             <div className="active-dialog-label">Активный диалог</div>
             <div className="active-dialog-name">{activeDialog}</div>
