@@ -1,9 +1,9 @@
 import { useState } from 'react';
 
-const models = [
-  { id: 'model_deepseek', label: 'DeepSeek Chat', desc: 'Быстрый, хорош для текста' },
-  { id: 'model_claude', label: 'Claude 3.5 Sonnet', desc: 'Лучший для анализа' },
-  { id: 'model_llama', label: 'Llama 3.3 70B', desc: 'Открытая модель Meta' },
+const MODELS = [
+  { id: 'model_deepseek', icon: '🧠', label: 'DeepSeek Chat', desc: 'Быстрый, хорош для текста' },
+  { id: 'model_claude', icon: '🎭', label: 'Claude 3.5 Sonnet', desc: 'Лучший для анализа' },
+  { id: 'model_llama', icon: '🦙', label: 'Llama 3.3 70B', desc: 'Открытая модель Meta' },
 ];
 
 export default function SettingsPage() {
@@ -11,75 +11,60 @@ export default function SettingsPage() {
   const [voiceEnabled, setVoiceEnabled] = useState(true);
 
   return (
-    <div className="page">
-      <div className="section-header">Настройки</div>
+    <>
+      <div className="page-header">
+        <span className="page-title">Настройки</span>
+      </div>
 
-      {/* AI Модель */}
-      <div style={{ marginBottom: 20 }}>
-        <div className="card-title" style={{ marginBottom: 10, fontSize: 14, color: 'var(--tg-theme-hint-color)' }}>
-          🤖 AI МОДЕЛЬ
-        </div>
-        {models.map((model) => (
-          <div
-            key={model.id}
-            onClick={() => setSelectedModel(model.id)}
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '14px 16px',
-              background: 'var(--tg-theme-secondary-bg-color, #f1f1f1)',
-              borderRadius: 12,
-              marginBottom: 8,
-              cursor: 'pointer',
-              border: selectedModel === model.id
-                ? '2px solid var(--tg-theme-button-color, #3390ec)'
-                : '2px solid transparent',
-            }}
-          >
+      <div className="section-header">AI Модель</div>
+      {MODELS.map(model => (
+        <div key={model.id} className={`model-row${selectedModel === model.id ? ' selected' : ''}`} onClick={() => setSelectedModel(model.id)}>
+          <div className="model-row-left">
+            <span className="model-icon">{model.icon}</span>
             <div>
-              <div style={{ fontWeight: 500 }}>{model.label}</div>
-              <div style={{ fontSize: 13, color: 'var(--tg-theme-hint-color)', marginTop: 2 }}>{model.desc}</div>
+              <div className="model-name">{model.label}</div>
+              <div className="model-desc">{model.desc}</div>
             </div>
-            {selectedModel === model.id && (
-              <span style={{ color: 'var(--tg-theme-button-color)', fontSize: 20 }}>✓</span>
-            )}
           </div>
-        ))}
+          {selectedModel === model.id && <span className="model-check">✓</span>}
+        </div>
+      ))}
+
+      <div className="section-header">Общие</div>
+      <div className="settings-section">
+        <div className="settings-row" onClick={() => setVoiceEnabled(v => !v)}>
+          <div className="settings-row-left">
+            <span style={{ fontSize: 18 }}>🎙</span>
+            <span className="settings-label">Голосовые сообщения</span>
+          </div>
+          <div className={`toggle${voiceEnabled ? ' on' : ''}`} onClick={e => { e.stopPropagation(); setVoiceEnabled(v => !v); }} />
+        </div>
+        <div className="settings-row">
+          <div className="settings-row-left">
+            <span style={{ fontSize: 18 }}>🌍</span>
+            <span className="settings-label">Язык</span>
+          </div>
+          <span className="settings-value">Русский</span>
+        </div>
       </div>
 
-      {/* Прочие настройки */}
-      <div className="card-title" style={{ marginBottom: 10, fontSize: 14, color: 'var(--tg-theme-hint-color)' }}>
-        ⚙️ ОБЩИЕ
+      <div className="section-header">Аккаунт</div>
+      <div className="settings-section">
+        <div className="settings-row">
+          <div className="settings-row-left">
+            <span style={{ fontSize: 18 }}>💳</span>
+            <span className="settings-label">Тариф</span>
+          </div>
+          <span className="settings-value">FREE</span>
+        </div>
+        <div className="settings-row">
+          <div className="settings-row-left">
+            <span style={{ fontSize: 18 }}>💬</span>
+            <span className="settings-label">Поддержка</span>
+          </div>
+          <span className="menu-arrow">›</span>
+        </div>
       </div>
-
-      <div
-        className="settings-row"
-        onClick={() => setVoiceEnabled(!voiceEnabled)}
-        style={{ cursor: 'pointer' }}
-      >
-        <span className="settings-label">🎙 Голосовые сообщения</span>
-        <span style={{
-          color: voiceEnabled ? '#34c759' : 'var(--tg-theme-hint-color)',
-          fontWeight: 600
-        }}>
-          {voiceEnabled ? 'Вкл' : 'Выкл'}
-        </span>
-      </div>
-
-      <div className="settings-row">
-        <span className="settings-label">🌍 Язык</span>
-        <span className="settings-value">Русский</span>
-      </div>
-
-      <div className="settings-row">
-        <span className="settings-label">📋 Тариф</span>
-        <span className="settings-value">Бесплатный</span>
-      </div>
-
-      <button className="btn-primary" style={{ marginTop: 20 }}>
-        💾 Сохранить настройки
-      </button>
-    </div>
+    </>
   );
 }

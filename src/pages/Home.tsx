@@ -1,72 +1,107 @@
 // Mock данные — потом заменим на n8n API
 const mockUser = {
-  credits: 250,
-  plan: 'Бесплатный',
-  requests_used: 12,
+  plan: 'FREE',
+  tokens_balance: 38_500,
+  tokens_total: 50_000,
+  requests: 12,
+  dialogs: 3,
   model: 'DeepSeek',
-  voice_enabled: true,
+  active_dialog: 'Как приготовить борщ',
+  active_model: 'DeepSeek',
 };
 
-// Получаем данные из Telegram WebApp
 const tgUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
 
 export default function HomePage() {
   const displayName = tgUser
     ? `${tgUser.first_name}${tgUser.last_name ? ' ' + tgUser.last_name : ''}`
     : 'Пользователь';
+  const username = tgUser?.username ? `@${tgUser.username}` : '@username';
+  const avatarLetter = displayName[0]?.toUpperCase() || 'П';
 
-  const username = tgUser?.username ? `@${tgUser.username}` : '';
-  const avatarLetter = displayName[0]?.toUpperCase() || '?';
+  const tokensK = (mockUser.tokens_balance / 1000).toFixed(0);
+  const percentUsed = Math.round(((mockUser.tokens_total - mockUser.tokens_balance) / mockUser.tokens_total) * 100);
 
   return (
-    <div className="page">
+    <>
       {/* Профиль */}
-      <div className="user-row">
-        <div className="avatar">{avatarLetter}</div>
+      <div className="profile-block">
+        <div className="avatar">
+          {tgUser?.photo_url
+            ? <img src={tgUser.photo_url} alt="avatar" />
+            : avatarLetter
+          }
+        </div>
         <div>
-          <div className="user-name">{displayName}</div>
-          {username && <div className="user-username">{username}</div>}
+          <div className="profile-name">{displayName}</div>
+          <div className="profile-username">{username}</div>
+          <div className="profile-plan">⭐ {mockUser.plan}</div>
         </div>
       </div>
 
       {/* Статистика */}
       <div className="stats-grid">
-        <div className="card">
-          <div className="card-title">⚡ Кредиты</div>
-          <div className="card-value">{mockUser.credits}</div>
+        <div className="stat-card">
+          <div className="stat-label">Токены</div>
+          <div className="stat-value">{tokensK}к</div>
+          <div className="stat-sub">осталось · {percentUsed}% исп.</div>
         </div>
-        <div className="card">
-          <div className="card-title">📋 Тариф</div>
-          <div className="card-value" style={{ fontSize: 16 }}>{mockUser.plan}</div>
+        <div className="stat-card">
+          <div className="stat-label">Запросы</div>
+          <div className="stat-value">{mockUser.requests}</div>
+          <div className="stat-sub">за всё время</div>
         </div>
-        <div className="card">
-          <div className="card-title">📨 Запросов</div>
-          <div className="card-value">{mockUser.requests_used}</div>
+        <div className="stat-card">
+          <div className="stat-label">Диалоги</div>
+          <div className="stat-value">{mockUser.dialogs}</div>
+          <div className="stat-sub">активных</div>
         </div>
-        <div className="card">
-          <div className="card-title">🤖 Модель</div>
-          <div className="card-value" style={{ fontSize: 15 }}>{mockUser.model}</div>
+        <div className="stat-card">
+          <div className="stat-label">Модель</div>
+          <div className="stat-value" style={{ fontSize: 16 }}>{mockUser.model}</div>
+          <div className="stat-sub">текущая</div>
         </div>
       </div>
 
-      {/* Кнопки */}
-      <button className="btn-primary">🚀 Купить кредиты</button>
-      <button className="btn-secondary">👑 Улучшить тариф</button>
+      {/* Активный диалог */}
+      <div className="active-dialog-block">
+        <div className="active-dialog-label">Активный диалог</div>
+        <div className="active-dialog-name">{mockUser.active_dialog}</div>
+        <div className="active-dialog-model">{mockUser.active_model}</div>
+      </div>
 
-      {/* Быстрые настройки */}
-      <div className="card" style={{ marginTop: 8 }}>
-        <div className="card-title">Текущие настройки</div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
-          <span>🤖 Модель</span>
-          <span style={{ color: 'var(--tg-theme-hint-color)' }}>{mockUser.model}</span>
+      {/* Меню */}
+      <div className="section-header">Дополнительно</div>
+      <div className="menu-section">
+        <div className="menu-row">
+          <div className="menu-row-left">
+            <span className="menu-icon">📚</span>
+            <span className="menu-label">База знаний</span>
+          </div>
+          <span className="menu-arrow">›</span>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
-          <span>🎙 Голос</span>
-          <span style={{ color: mockUser.voice_enabled ? '#34c759' : 'var(--tg-theme-hint-color)' }}>
-            {mockUser.voice_enabled ? 'Включён' : 'Выключен'}
-          </span>
+        <div className="menu-row">
+          <div className="menu-row-left">
+            <span className="menu-icon">📊</span>
+            <span className="menu-label">История расходов</span>
+          </div>
+          <span className="menu-arrow">›</span>
+        </div>
+        <div className="menu-row">
+          <div className="menu-row-left">
+            <span className="menu-icon">🎁</span>
+            <span className="menu-label">Акции и бонусы</span>
+          </div>
+          <span className="menu-arrow">›</span>
+        </div>
+        <div className="menu-row">
+          <div className="menu-row-left">
+            <span className="menu-icon">💬</span>
+            <span className="menu-label">Поддержка</span>
+          </div>
+          <span className="menu-arrow">›</span>
         </div>
       </div>
-    </div>
+    </>
   );
 }
