@@ -55,6 +55,24 @@ export async function fetchChats(chatId: number): Promise<ChatData[]> {
   return res.json();
 }
 
+export async function switchDialog(chatId: number, conversationId: string): Promise<void> {
+  await fetch(`${API_BASE}/miniapp/switch`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: chatId, conversation_id: conversationId }),
+  });
+}
+
+export async function newDialog(chatId: number): Promise<ChatData> {
+  const res = await fetch(`${API_BASE}/miniapp/new`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: chatId }),
+  });
+  if (!res.ok) throw new Error('new dialog failed');
+  return res.json();
+}
+
 export function formatDate(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });

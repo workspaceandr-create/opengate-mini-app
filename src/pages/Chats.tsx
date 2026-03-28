@@ -1,14 +1,10 @@
 import { useState, useEffect } from 'react';
-import { fetchChats, MODEL_DISPLAY, MODEL_ICON, formatDate } from '../api';
+import { fetchChats, switchDialog, newDialog, MODEL_DISPLAY, MODEL_ICON, formatDate } from '../api';
 import type { ChatData } from '../api';
 
 function getChatId(): number | null {
   const tgWebApp = (window as any).Telegram?.WebApp;
-
-  // 1. initDataUnsafe
   if (tgWebApp?.initDataUnsafe?.user?.id) return tgWebApp.initDataUnsafe.user.id;
-
-  // 2. Парсинг initData
   const initData = tgWebApp?.initData;
   if (initData) {
     try {
@@ -17,22 +13,22 @@ function getChatId(): number | null {
       if (userStr) return JSON.parse(userStr).id;
     } catch {}
   }
-
-  // 3. URL параметр ?id=
   const urlParams = new URLSearchParams(window.location.search);
   const idParam = urlParams.get('id');
   if (idParam) {
     const chatId = parseInt(idParam, 10);
     if (!isNaN(chatId)) return chatId;
   }
-
   return null;
 }
 
 export default function ChatsPage() {
+  const [chatId, setChatId] = useState<number | null>(null);
   const [chats, setChats] = useState<ChatData[]>([]);
   const [loading, setLoading] = useState(true);
   const [noUser, setNoUser] = useState(false);
+  const [switching, setSwitching] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameVal, setRenameVal] = useState('');
 
@@ -41,17 +37,41 @@ export default function ChatsPage() {
     tgWebApp?.ready?.();
     tgWebApp?.expand?.();
 
-    const chatId = getChatId();
-    if (!chatId) {
-      setNoUser(true);
-      setLoading(false);
-      return;
-    }
-    fetchChats(chatId)
+    const id = getChatId();
+    if (!id) { setNoUser(true); setLoading(false); return; }
+    setChatId(id);
+    fetchChats(id)
       .then(setChats)
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  async function handleSwitch(conv: ChatData) {
+    if (!chatId || conv.status === 'active') return;
+    setSwitching(conv.conversation_id);
+    try {
+      await switchDialog(chatId, conv.conversation_id);
+      setChats(prev => prev.map(c => ({
+        ...c,
+        status: c.conversation_id === conv.conversation_id ? 'active' : 'inactive',
+      })));
+    } finally {
+      setSwitching(null);
+    }
+  }
+
+  async function handleNew() {
+    if (!chatId || creating) return;
+    setCreating(true);
+    try {
+      const created = await newDialog(chatId);
+      setChats(prev => [
+        { ...created, last_message: null },
+        ...prev.map(c => ({ ...c, status: 'inactive' })),
+      ]);
+    } catch {}
+    setCreating(false);
+  }
 
   function startRename(conv: ChatData) {
     setRenamingId(conv.conversation_id);
@@ -71,7 +91,9 @@ export default function ChatsPage() {
     <>
       <div className="page-header">
         <span className="page-title">Мои диалоги</span>
-        <button className="btn-new">＋ Новый</button>
+        <button className="btn-new" onClick={handleNew} disabled={creating}>
+          {creating ? '...' : '＋ Новый'}
+        </button>
       </div>
 
       {loading && (
@@ -91,16 +113,22 @@ export default function ChatsPage() {
       )}
 
       {chats.map((conv, i) => {
-        const isActive = conv.status === 'active' && i === 0;
+        const isActive = conv.status === 'active' || i === 0;
         const icon = MODEL_ICON[conv.model_key] ?? '💬';
         const iconClass = conv.model_key === 'model_claude' ? 'ic-cl' : 'ic-ds';
         const modelName = MODEL_DISPLAY[conv.model_key] ?? conv.model_key;
         const preview = conv.last_message
           ? conv.last_message.replace(/\*\*/g, '').replace(/\n/g, ' ').slice(0, 80) + '...'
           : 'Нет сообщений';
+        const isSwitching = switching === conv.conversation_id;
 
         return (
-          <div key={conv.conversation_id} className={`conv-card${isActive ? ' active-conv' : ''}`}>
+          <div
+            key={conv.conversation_id}
+            className={`conv-card${isActive ? ' active-conv' : ''}`}
+            onClick={() => !isActive && handleSwitch(conv)}
+            style={{ cursor: isActive ? 'default' : 'pointer' }}
+          >
             {isActive && <span className="active-badge">● активный</span>}
             <div className="conv-card-top">
               <div className={`conv-icon ${iconClass}`}>{icon}</div>
@@ -114,6 +142,7 @@ export default function ChatsPage() {
                     onChange={e => setRenameVal(e.target.value)}
                     onBlur={() => commitRename(conv.conversation_id)}
                     onKeyDown={e => e.key === 'Enter' && commitRename(conv.conversation_id)}
+                    onClick={e => e.stopPropagation()}
                   />
                 ) : (
                   <div className="conv-title">{conv.title}</div>
@@ -128,9 +157,15 @@ export default function ChatsPage() {
               </div>
             </div>
             <div className="conv-preview">{preview}</div>
-            <div className="conv-actions">
+            <div className="conv-actions" onClick={e => e.stopPropagation()}>
               {!isActive && (
-                <button className="btn-s btn-switch">▶ Переключиться</button>
+                <button
+                  className="btn-s btn-switch"
+                  onClick={() => handleSwitch(conv)}
+                  disabled={isSwitching}
+                >
+                  {isSwitching ? '...' : '▶ Переключиться'}
+                </button>
               )}
               <button className="btn-s btn-rename" onClick={() => startRename(conv)}>
                 ✏️ {isActive ? 'Переименовать' : ''}
