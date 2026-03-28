@@ -1,86 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { fetchChats, MODEL_DISPLAY, MODEL_ICON, formatDate } from '../api';
+import type { ChatData } from '../api';
 
-interface Conv {
-  id: number;
-  icon: string;
-  iconClass: string;
-  title: string;
-  model: string;
-  agentTag?: string;
-  date: string;
-  count?: number;
-  preview: string;
-  active: boolean;
-}
-
-const MOCK_CONVS: Conv[] = [
-  {
-    id: 1,
-    icon: '🧠',
-    iconClass: 'ic-ds',
-    title: 'Как приготовить борщ',
-    model: 'DeepSeek',
-    date: '26 мар',
-    count: 12,
-    preview: 'Борщ — это не просто суп, это целое искусство...',
-    active: true,
-  },
-  {
-    id: 2,
-    icon: '⚖️',
-    iconClass: 'ic-agent',
-    title: 'Договор аренды — подводные камни',
-    model: 'Claude',
-    agentTag: '🤖 Юрист',
-    date: '20 мар',
-    preview: 'Обратите внимание на пункт 4.2 — арендодатель...',
-    active: false,
-  },
-  {
-    id: 3,
-    icon: '📱',
-    iconClass: 'ic-agent',
-    title: 'Контент-план на апрель',
-    model: 'DeepSeek',
-    agentTag: '🤖 СММ',
-    date: '15 мар',
-    preview: 'Вот 30 идей для постов с учётом трендов...',
-    active: false,
-  },
-  {
-    id: 4,
-    icon: '🎭',
-    iconClass: 'ic-cl',
-    title: 'Квантовые вычисления простыми словами',
-    model: 'Claude',
-    date: '10 мар',
-    count: 3,
-    preview: 'Представь компьютер как монету: орёл или решка...',
-    active: false,
-  },
-];
+const tgUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
 
 export default function ChatsPage() {
-  const [convs, setConvs] = useState(MOCK_CONVS);
-  const [renamingId, setRenamingId] = useState<number | null>(null);
+  const [chats, setChats] = useState<ChatData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameVal, setRenameVal] = useState('');
 
-  function handleSwitch(id: number) {
-    setConvs(prev => prev.map(c => ({ ...c, active: c.id === id })));
-  }
+  useEffect(() => {
+    const chatId = tgUser?.id;
+    if (!chatId) { setLoading(false); return; }
+    fetchChats(chatId)
+      .then(setChats)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
-  function handleDelete(id: number) {
-    setConvs(prev => prev.filter(c => c.id !== id));
-  }
-
-  function startRename(conv: Conv) {
-    setRenamingId(conv.id);
+  function startRename(conv: ChatData) {
+    setRenamingId(conv.conversation_id);
     setRenameVal(conv.title);
   }
 
-  function commitRename(id: number) {
-    setConvs(prev => prev.map(c => c.id === id ? { ...c, title: renameVal } : c));
+  function commitRename(id: string) {
+    setChats(prev => prev.map(c => c.conversation_id === id ? { ...c, title: renameVal } : c));
     setRenamingId(null);
+  }
+
+  function handleDelete(id: string) {
+    setChats(prev => prev.filter(c => c.conversation_id !== id));
   }
 
   return (
@@ -90,43 +40,66 @@ export default function ChatsPage() {
         <button className="btn-new">＋ Новый</button>
       </div>
 
-      {convs.map(conv => (
-        <div key={conv.id} className={`conv-card${conv.active ? ' active-conv' : ''}`}>
-          <span className="active-badge">● активный</span>
-          <div className="conv-card-top">
-            <div className={`conv-icon ${conv.iconClass}`}>{conv.icon}</div>
-            <div className="conv-info">
-              {renamingId === conv.id ? (
-                <input
-                  className="text-input"
-                  style={{ padding: '4px 8px', fontSize: 13, marginBottom: 4 }}
-                  value={renameVal}
-                  autoFocus
-                  onChange={e => setRenameVal(e.target.value)}
-                  onBlur={() => commitRename(conv.id)}
-                  onKeyDown={e => e.key === 'Enter' && commitRename(conv.id)}
-                />
-              ) : (
-                <div className="conv-title">{conv.title}</div>
-              )}
-              <div className="conv-meta">
-                <span className="conv-model">{conv.model}</span>
-                {conv.agentTag && <span className="conv-agent-tag">{conv.agentTag}</span>}
-                <span className="conv-date">{conv.date}</span>
-                {conv.count && <span className="conv-count">· {conv.count} сообщ.</span>}
+      {loading && (
+        <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>Загрузка...</div>
+      )}
+
+      {!loading && chats.length === 0 && (
+        <div style={{ textAlign: 'center', padding: '40px 24px', color: 'var(--text-secondary)' }}>
+          Нет диалогов. Начни общение с ботом!
+        </div>
+      )}
+
+      {chats.map((conv, i) => {
+        const isActive = conv.status === 'active' && i === 0;
+        const icon = MODEL_ICON[conv.model_key] ?? '💬';
+        const iconClass = conv.model_key === 'model_claude' ? 'ic-cl' : 'ic-ds';
+        const modelName = MODEL_DISPLAY[conv.model_key] ?? conv.model_key;
+        const preview = conv.last_message
+          ? conv.last_message.replace(/\*\*/g, '').replace(/\n/g, ' ').slice(0, 80) + '...'
+          : 'Нет сообщений';
+
+        return (
+          <div key={conv.conversation_id} className={`conv-card${isActive ? ' active-conv' : ''}`}>
+            {isActive && <span className="active-badge">● активный</span>}
+            <div className="conv-card-top">
+              <div className={`conv-icon ${iconClass}`}>{icon}</div>
+              <div className="conv-info">
+                {renamingId === conv.conversation_id ? (
+                  <input
+                    className="text-input"
+                    style={{ padding: '4px 8px', fontSize: 13, marginBottom: 4 }}
+                    value={renameVal}
+                    autoFocus
+                    onChange={e => setRenameVal(e.target.value)}
+                    onBlur={() => commitRename(conv.conversation_id)}
+                    onKeyDown={e => e.key === 'Enter' && commitRename(conv.conversation_id)}
+                  />
+                ) : (
+                  <div className="conv-title">{conv.title}</div>
+                )}
+                <div className="conv-meta">
+                  <span className="conv-model">{modelName}</span>
+                  <span className="conv-date">{formatDate(conv.updated_at)}</span>
+                  {conv.message_count > 0 && (
+                    <span className="conv-count">· {conv.message_count} сообщ.</span>
+                  )}
+                </div>
               </div>
             </div>
+            <div className="conv-preview">{preview}</div>
+            <div className="conv-actions">
+              {!isActive && (
+                <button className="btn-s btn-switch">▶ Переключиться</button>
+              )}
+              <button className="btn-s btn-rename" onClick={() => startRename(conv)}>
+                ✏️ {isActive ? 'Переименовать' : ''}
+              </button>
+              <button className="btn-s btn-del" onClick={() => handleDelete(conv.conversation_id)}>🗑</button>
+            </div>
           </div>
-          <div className="conv-preview">{conv.preview}</div>
-          <div className="conv-actions">
-            {!conv.active && (
-              <button className="btn-s btn-switch" onClick={() => handleSwitch(conv.id)}>▶ Переключиться</button>
-            )}
-            <button className="btn-s btn-rename" onClick={() => startRename(conv)}>✏️ {conv.active ? 'Переименовать' : ''}</button>
-            <button className="btn-s btn-del" onClick={() => handleDelete(conv.id)}>🗑</button>
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </>
   );
 }
