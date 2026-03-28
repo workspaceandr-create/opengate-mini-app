@@ -8,21 +8,36 @@ const PLAN_TOKENS: Record<string, number> = {
   PRO: 2_000_000,
 };
 
-function getTelegramUser() {
+function getTelegramData(): { user: any; chatId: number | null } {
   const tgWebApp = (window as any).Telegram?.WebApp;
-  if (!tgWebApp) return null;
-  // Try initDataUnsafe first
-  if (tgWebApp.initDataUnsafe?.user) return tgWebApp.initDataUnsafe.user;
-  // Fallback: parse initData string manually
-  const initData = tgWebApp.initData;
-  if (!initData) return null;
-  try {
-    const params = new URLSearchParams(initData);
-    const userStr = params.get('user');
-    return userStr ? JSON.parse(userStr) : null;
-  } catch {
-    return null;
+
+  // 1. initDataUnsafe.user (стандартный способ)
+  if (tgWebApp?.initDataUnsafe?.user) {
+    return { user: tgWebApp.initDataUnsafe.user, chatId: tgWebApp.initDataUnsafe.user.id };
   }
+
+  // 2. Парсинг строки initData вручную
+  const initData = tgWebApp?.initData;
+  if (initData) {
+    try {
+      const params = new URLSearchParams(initData);
+      const userStr = params.get('user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        return { user, chatId: user.id };
+      }
+    } catch {}
+  }
+
+  // 3. chat_id из URL параметра ?id=... (передаётся ботом в кнопке)
+  const urlParams = new URLSearchParams(window.location.search);
+  const idParam = urlParams.get('id');
+  if (idParam) {
+    const chatId = parseInt(idParam, 10);
+    if (!isNaN(chatId)) return { user: null, chatId };
+  }
+
+  return { user: null, chatId: null };
 }
 
 export default function HomePage() {
@@ -36,10 +51,9 @@ export default function HomePage() {
     tgWebApp?.ready?.();
     tgWebApp?.expand?.();
 
-    const user = getTelegramUser();
+    const { user, chatId } = getTelegramData();
     setTgUser(user);
 
-    const chatId = user?.id;
     if (!chatId) {
       setLoading(false);
       return;
@@ -76,7 +90,6 @@ export default function HomePage() {
 
   return (
     <>
-      {/* Профиль */}
       <div className="profile-block">
         <div className="avatar">
           {tgUser?.photo_url
@@ -97,7 +110,7 @@ export default function HomePage() {
         </div>
       )}
 
-      {!loading && !tgUser && !profile && (
+      {!loading && !profile && !error && (
         <div style={{ textAlign: 'center', padding: '32px 24px', color: 'var(--text-secondary)', fontSize: 14 }}>
           Откройте приложение через бота @OpenGateAI_bot
         </div>
@@ -136,7 +149,6 @@ export default function HomePage() {
         </>
       )}
 
-      {/* Меню */}
       <div className="section-header">Дополнительно</div>
       <div className="menu-section">
         <div className="menu-row">

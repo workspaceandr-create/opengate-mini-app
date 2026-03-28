@@ -2,19 +2,31 @@ import { useState, useEffect } from 'react';
 import { fetchChats, MODEL_DISPLAY, MODEL_ICON, formatDate } from '../api';
 import type { ChatData } from '../api';
 
-function getTelegramUser() {
+function getChatId(): number | null {
   const tgWebApp = (window as any).Telegram?.WebApp;
-  if (!tgWebApp) return null;
-  if (tgWebApp.initDataUnsafe?.user) return tgWebApp.initDataUnsafe.user;
-  const initData = tgWebApp.initData;
-  if (!initData) return null;
-  try {
-    const params = new URLSearchParams(initData);
-    const userStr = params.get('user');
-    return userStr ? JSON.parse(userStr) : null;
-  } catch {
-    return null;
+
+  // 1. initDataUnsafe
+  if (tgWebApp?.initDataUnsafe?.user?.id) return tgWebApp.initDataUnsafe.user.id;
+
+  // 2. Парсинг initData
+  const initData = tgWebApp?.initData;
+  if (initData) {
+    try {
+      const params = new URLSearchParams(initData);
+      const userStr = params.get('user');
+      if (userStr) return JSON.parse(userStr).id;
+    } catch {}
   }
+
+  // 3. URL параметр ?id=
+  const urlParams = new URLSearchParams(window.location.search);
+  const idParam = urlParams.get('id');
+  if (idParam) {
+    const chatId = parseInt(idParam, 10);
+    if (!isNaN(chatId)) return chatId;
+  }
+
+  return null;
 }
 
 export default function ChatsPage() {
@@ -29,8 +41,7 @@ export default function ChatsPage() {
     tgWebApp?.ready?.();
     tgWebApp?.expand?.();
 
-    const user = getTelegramUser();
-    const chatId = user?.id;
+    const chatId = getChatId();
     if (!chatId) {
       setNoUser(true);
       setLoading(false);
