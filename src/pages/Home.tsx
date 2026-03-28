@@ -8,18 +8,42 @@ const PLAN_TOKENS: Record<string, number> = {
   PRO: 2_000_000,
 };
 
-const tgWebApp = (window as any).Telegram?.WebApp;
-const tgUser = tgWebApp?.initDataUnsafe?.user;
+function getTelegramUser() {
+  const tgWebApp = (window as any).Telegram?.WebApp;
+  if (!tgWebApp) return null;
+  // Try initDataUnsafe first
+  if (tgWebApp.initDataUnsafe?.user) return tgWebApp.initDataUnsafe.user;
+  // Fallback: parse initData string manually
+  const initData = tgWebApp.initData;
+  if (!initData) return null;
+  try {
+    const params = new URLSearchParams(initData);
+    const userStr = params.get('user');
+    return userStr ? JSON.parse(userStr) : null;
+  } catch {
+    return null;
+  }
+}
 
 export default function HomePage() {
+  const [tgUser, setTgUser] = useState<any>(null);
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
+    const tgWebApp = (window as any).Telegram?.WebApp;
     tgWebApp?.ready?.();
-    const chatId = tgUser?.id;
-    if (!chatId) { setLoading(false); return; }
+    tgWebApp?.expand?.();
+
+    const user = getTelegramUser();
+    setTgUser(user);
+
+    const chatId = user?.id;
+    if (!chatId) {
+      setLoading(false);
+      return;
+    }
     fetchProfile(chatId)
       .then(data => { setProfile(data); setLoading(false); })
       .catch(() => { setError(true); setLoading(false); });
@@ -30,7 +54,7 @@ export default function HomePage() {
     : profile?.full_name || 'Пользователь';
   const username = tgUser?.username
     ? `@${tgUser.username}`
-    : (profile?.username && profile.username !== 'no_username' ? `@${profile.username}` : '@username');
+    : (profile?.username && profile.username !== 'no_username' ? `@${profile.username}` : '');
   const avatarLetter = displayName[0]?.toUpperCase() || 'П';
 
   const plan = profile?.plan ?? 'FREE';
@@ -48,6 +72,8 @@ export default function HomePage() {
   const modelName = MODEL_DISPLAY[modelKey] ?? 'DeepSeek';
   const activeDialog = profile?.active_dialog_title ?? '—';
 
+  const hasData = !loading && !error && profile;
+
   return (
     <>
       {/* Профиль */}
@@ -60,7 +86,7 @@ export default function HomePage() {
         </div>
         <div>
           <div className="profile-name">{displayName}</div>
-          <div className="profile-username">{username}</div>
+          {username && <div className="profile-username">{username}</div>}
           <div className="profile-plan">⭐ {plan}</div>
         </div>
       </div>
@@ -71,13 +97,13 @@ export default function HomePage() {
         </div>
       )}
 
-      {!loading && !tgUser && (
+      {!loading && !tgUser && !profile && (
         <div style={{ textAlign: 'center', padding: '32px 24px', color: 'var(--text-secondary)', fontSize: 14 }}>
           Откройте приложение через бота @OpenGateAI_bot
         </div>
       )}
 
-      {!loading && tgUser && !error && (
+      {hasData && (
         <>
           <div className="stats-grid">
             <div className="stat-card">

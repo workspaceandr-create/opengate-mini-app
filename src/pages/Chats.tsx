@@ -2,17 +2,40 @@ import { useState, useEffect } from 'react';
 import { fetchChats, MODEL_DISPLAY, MODEL_ICON, formatDate } from '../api';
 import type { ChatData } from '../api';
 
-const tgUser = (window as any).Telegram?.WebApp?.initDataUnsafe?.user;
+function getTelegramUser() {
+  const tgWebApp = (window as any).Telegram?.WebApp;
+  if (!tgWebApp) return null;
+  if (tgWebApp.initDataUnsafe?.user) return tgWebApp.initDataUnsafe.user;
+  const initData = tgWebApp.initData;
+  if (!initData) return null;
+  try {
+    const params = new URLSearchParams(initData);
+    const userStr = params.get('user');
+    return userStr ? JSON.parse(userStr) : null;
+  } catch {
+    return null;
+  }
+}
 
 export default function ChatsPage() {
   const [chats, setChats] = useState<ChatData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [noUser, setNoUser] = useState(false);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameVal, setRenameVal] = useState('');
 
   useEffect(() => {
-    const chatId = tgUser?.id;
-    if (!chatId) { setLoading(false); return; }
+    const tgWebApp = (window as any).Telegram?.WebApp;
+    tgWebApp?.ready?.();
+    tgWebApp?.expand?.();
+
+    const user = getTelegramUser();
+    const chatId = user?.id;
+    if (!chatId) {
+      setNoUser(true);
+      setLoading(false);
+      return;
+    }
     fetchChats(chatId)
       .then(setChats)
       .catch(() => {})
@@ -44,7 +67,13 @@ export default function ChatsPage() {
         <div style={{ textAlign: 'center', padding: '24px', color: 'var(--text-secondary)' }}>Загрузка...</div>
       )}
 
-      {!loading && chats.length === 0 && (
+      {noUser && (
+        <div style={{ textAlign: 'center', padding: '40px 24px', color: 'var(--text-secondary)', fontSize: 14 }}>
+          Откройте приложение через бота @OpenGateAI_bot
+        </div>
+      )}
+
+      {!loading && !noUser && chats.length === 0 && (
         <div style={{ textAlign: 'center', padding: '40px 24px', color: 'var(--text-secondary)' }}>
           Нет диалогов. Начни общение с ботом!
         </div>
