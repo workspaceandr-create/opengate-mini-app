@@ -40,7 +40,9 @@ function getTelegramData(): { user: any; chatId: number | null } {
   return { user: null, chatId: null };
 }
 
-export default function HomePage() {
+type Tab = 'chats' | 'agents' | 'home' | 'history' | 'plans' | 'settings';
+
+export default function HomePage({ onNavigate }: { onNavigate?: (tab: Tab) => void }) {
   const [tgUser, setTgUser] = useState<any>(null);
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -158,7 +160,7 @@ export default function HomePage() {
           </div>
           <span className="menu-arrow">›</span>
         </div>
-        <div className="menu-row">
+        <div className="menu-row" onClick={() => onNavigate?.('history')} style={{ cursor: 'pointer' }}>
           <div className="menu-row-left">
             <span className="menu-icon">📊</span>
             <span className="menu-label">История расходов</span>

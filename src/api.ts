@@ -1,9 +1,9 @@
 const API_BASE = 'https://n8n-eba.ru/webhook';
 
 export const MODEL_DISPLAY: Record<string, string> = {
-  model_deepseek: 'DeepSeek',
-  model_claude: 'Claude',
-  model_llama: 'Llama',
+  chat_deepseek: 'DeepSeek V3',
+  chat_gpt: 'GPT-4o mini',
+  chat_llama: 'Llama 3.3 70B',
   model_flux_pro: 'Flux Pro',
   model_flux_schnell: 'Flux Schnell',
   model_riverflow_pro: 'Riverflow Pro',
@@ -11,11 +11,11 @@ export const MODEL_DISPLAY: Record<string, string> = {
 };
 
 export const MODEL_ICON: Record<string, string> = {
-  model_deepseek: '🧠',
-  model_claude: '🎭',
-  model_llama: '🦙',
+  chat_deepseek: '🧠',
+  chat_gpt: '⚡',
+  chat_llama: '🦙',
   model_flux_pro: '🎨',
-  model_flux_schnell: '⚡',
+  model_flux_schnell: '🎨',
   model_riverflow_pro: '🌊',
   model_riverflow_fast: '🌊',
 };
@@ -70,6 +70,37 @@ export async function newDialog(chatId: number): Promise<ChatData> {
     body: JSON.stringify({ chat_id: chatId }),
   });
   if (!res.ok) throw new Error('new dialog failed');
+  return res.json();
+}
+
+export async function renameDialog(chatId: number, conversationId: string, title: string): Promise<void> {
+  await fetch(`${API_BASE}/miniapp/rename`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: chatId, conversation_id: conversationId, title }),
+  });
+}
+
+export async function deleteDialog(chatId: number, conversationId: string): Promise<void> {
+  await fetch(`${API_BASE}/miniapp/delete`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: chatId, conversation_id: conversationId }),
+  });
+}
+
+export interface HistoryItem {
+  action: string;
+  model: string;
+  tokens_in: number;
+  tokens_out: number;
+  cost_usd: number;
+  created_at: string;
+}
+
+export async function fetchHistory(chatId: number): Promise<HistoryItem[]> {
+  const res = await fetch(`${API_BASE}/miniapp/history?chat_id=${chatId}`);
+  if (!res.ok) throw new Error('fetch history failed');
   return res.json();
 }
 

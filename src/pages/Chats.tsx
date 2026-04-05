@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchChats, switchDialog, newDialog, MODEL_DISPLAY, MODEL_ICON, formatDate } from '../api';
+import { fetchChats, switchDialog, newDialog, renameDialog, deleteDialog, MODEL_DISPLAY, MODEL_ICON, formatDate } from '../api';
 import type { ChatData } from '../api';
 
 function getChatId(): number | null {
@@ -53,7 +53,7 @@ export default function ChatsPage() {
       await switchDialog(chatId, conv.conversation_id);
       setChats(prev => prev.map(c => ({
         ...c,
-        status: c.conversation_id === conv.conversation_id ? 'active' : 'inactive',
+        status: c.conversation_id === conv.conversation_id ? 'active' : 'closed',
       })));
     } finally {
       setSwitching(null);
@@ -67,7 +67,7 @@ export default function ChatsPage() {
       const created = await newDialog(chatId);
       setChats(prev => [
         { ...created, last_message: null },
-        ...prev.map(c => ({ ...c, status: 'inactive' })),
+        ...prev.map(c => ({ ...c, status: 'closed' })),
       ]);
     } catch {}
     setCreating(false);
@@ -78,13 +78,17 @@ export default function ChatsPage() {
     setRenameVal(conv.title);
   }
 
-  function commitRename(id: string) {
+  async function commitRename(id: string) {
+    if (!chatId) return;
     setChats(prev => prev.map(c => c.conversation_id === id ? { ...c, title: renameVal } : c));
     setRenamingId(null);
+    await renameDialog(chatId, id, renameVal).catch(() => {});
   }
 
-  function handleDelete(id: string) {
+  async function handleDelete(id: string) {
+    if (!chatId) return;
     setChats(prev => prev.filter(c => c.conversation_id !== id));
+    await deleteDialog(chatId, id).catch(() => {});
   }
 
   return (
@@ -112,10 +116,10 @@ export default function ChatsPage() {
         </div>
       )}
 
-      {chats.map((conv, i) => {
-        const isActive = conv.status === 'active' || i === 0;
+      {chats.map((conv) => {
+        const isActive = conv.status === 'active';
         const icon = MODEL_ICON[conv.model_key] ?? '💬';
-        const iconClass = conv.model_key === 'model_claude' ? 'ic-cl' : 'ic-ds';
+        const iconClass = conv.model_key === 'chat_gpt' ? 'ic-cl' : 'ic-ds';
         const modelName = MODEL_DISPLAY[conv.model_key] ?? conv.model_key;
         const preview = conv.last_message
           ? conv.last_message.replace(/\*\*/g, '').replace(/\n/g, ' ').slice(0, 80) + '...'
