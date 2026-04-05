@@ -1,9 +1,15 @@
 const API_BASE = 'https://n8n-eba.ru/webhook';
 
 export const MODEL_DISPLAY: Record<string, string> = {
+  // Текущие ключи бота
   chat_deepseek: 'DeepSeek V3',
   chat_gpt: 'GPT-4o mini',
   chat_llama: 'Llama 3.3 70B',
+  // Устаревшие ключи (старые диалоги в БД)
+  model_deepseek: 'DeepSeek V3',
+  model_claude: 'GPT-4o mini',
+  model_llama: 'Llama 3.3 70B',
+  // Модели изображений
   model_flux_pro: 'Flux Pro',
   model_flux_schnell: 'Flux Schnell',
   model_riverflow_pro: 'Riverflow Pro',
@@ -14,6 +20,9 @@ export const MODEL_ICON: Record<string, string> = {
   chat_deepseek: '🧠',
   chat_gpt: '⚡',
   chat_llama: '🦙',
+  model_deepseek: '🧠',
+  model_claude: '⚡',
+  model_llama: '🦙',
   model_flux_pro: '🎨',
   model_flux_schnell: '🎨',
   model_riverflow_pro: '🌊',

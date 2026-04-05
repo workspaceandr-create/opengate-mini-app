@@ -46,6 +46,13 @@ export default function ChatsPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  function handleOpenActive() {
+    const tgWebApp = (window as any).Telegram?.WebApp;
+    if (tgWebApp?.close) {
+      tgWebApp.close();
+    }
+  }
+
   async function handleSwitch(conv: ChatData) {
     if (!chatId || conv.status === 'active') return;
     setSwitching(conv.conversation_id);
@@ -130,10 +137,10 @@ export default function ChatsPage() {
           <div
             key={conv.conversation_id}
             className={`conv-card${isActive ? ' active-conv' : ''}`}
-            onClick={() => !isActive && handleSwitch(conv)}
-            style={{ cursor: isActive ? 'default' : 'pointer' }}
+            onClick={() => isActive ? handleOpenActive() : handleSwitch(conv)}
+            style={{ cursor: 'pointer' }}
           >
-            {isActive && <span className="active-badge">● активный</span>}
+            {isActive && <span className="active-badge">● активный · открыть ›</span>}
             <div className="conv-card-top">
               <div className={`conv-icon ${iconClass}`}>{icon}</div>
               <div className="conv-info">
