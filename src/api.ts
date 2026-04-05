@@ -98,6 +98,19 @@ export async function deleteDialog(chatId: number, conversationId: string): Prom
   });
 }
 
+export interface MessageItem {
+  role: 'user' | 'assistant';
+  content: string;
+  model_key: string;
+  created_at: string;
+}
+
+export async function fetchMessages(chatId: number, conversationId: string): Promise<MessageItem[]> {
+  const res = await fetch(`${API_BASE}/miniapp/messages?chat_id=${chatId}&conversation_id=${encodeURIComponent(conversationId)}`);
+  if (!res.ok) throw new Error('fetch messages failed');
+  return res.json();
+}
+
 export interface HistoryItem {
   action: string;
   model: string;
