@@ -482,6 +482,19 @@ body {
 .cd-title { color: #e8f4fd; font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cd-model { color: #5ba3e0; font-size: 12px; margin-top: 2px; }
 
+.cd-open-bot {
+  background: #5ba3e0;
+  border: none;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 7px 12px;
+  border-radius: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .cd-messages {
   flex: 1;
   overflow-y: auto;

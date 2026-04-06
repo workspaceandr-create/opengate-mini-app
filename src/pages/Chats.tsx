@@ -130,6 +130,19 @@ export default function ChatsPage() {
             <div className="cd-title">{viewConv.title}</div>
             <div className="cd-model">{icon} {modelName}</div>
           </div>
+          <button
+            className="cd-open-bot"
+            onClick={() => {
+              const tgWebApp = (window as any).Telegram?.WebApp;
+              if (tgWebApp?.openTelegramLink) {
+                tgWebApp.openTelegramLink('https://t.me/OpenGateAI_bot');
+              } else if (tgWebApp?.close) {
+                tgWebApp.close();
+              }
+            }}
+          >
+            💬 В бот
+          </button>
         </div>
 
         <div className="cd-messages">
