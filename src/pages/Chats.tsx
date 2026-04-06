@@ -125,7 +125,6 @@ export default function ChatsPage() {
     return (
       <>
         <div className="cd-header">
-          <button className="cd-back" onClick={() => setViewConv(null)}>← Назад</button>
           <div className="cd-info">
             <div className="cd-title">{viewConv.title}</div>
             <div className="cd-model">{icon} {modelName}</div>
@@ -163,20 +162,7 @@ export default function ChatsPage() {
         </div>
 
         <div className="cd-footer">
-          <div className="cd-footer-hint">Для продолжения диалога перейдите в бот</div>
-          <button
-            className="cd-continue-btn"
-            onClick={() => {
-              const tgWebApp = (window as any).Telegram?.WebApp;
-              if (tgWebApp?.openTelegramLink) {
-                tgWebApp.openTelegramLink('https://t.me/OpenGateAI_bot');
-              } else if (tgWebApp?.close) {
-                tgWebApp.close();
-              }
-            }}
-          >
-            Продолжить чат →
-          </button>
+          <button className="cd-back-btn" onClick={() => setViewConv(null)}>← Назад к диалогам</button>
         </div>
       </>
     );

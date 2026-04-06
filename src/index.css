@@ -466,18 +466,6 @@ body {
   border-bottom: 1px solid #1e2e3d;
   flex-shrink: 0;
 }
-.cd-back {
-  background: #17212b;
-  border: none;
-  color: #5ba3e0;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 7px 12px;
-  border-radius: 10px;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
 .cd-info { flex: 1; min-width: 0; }
 .cd-title { color: #e8f4fd; font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cd-model { color: #5ba3e0; font-size: 12px; margin-top: 2px; }
@@ -489,21 +477,13 @@ body {
   right: 0;
   background: #17212b;
   border-top: 1px solid #1e2e3d;
-  padding: 10px 14px 14px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
+  padding: 10px 14px 18px;
   z-index: 50;
 }
-.cd-footer-hint {
-  color: #5a7a8a;
-  font-size: 12px;
-}
-.cd-continue-btn {
+.cd-back-btn {
   width: 100%;
-  background: #5ba3e0;
-  color: white;
+  background: #1e2e3d;
+  color: #5ba3e0;
   border: none;
   border-radius: 12px;
   padding: 13px;
@@ -511,7 +491,7 @@ body {
   font-weight: 600;
   cursor: pointer;
 }
-.cd-continue-btn:hover { background: #4a92cf; }
+.cd-back-btn:hover { background: #243a4d; }
 
 .cd-messages {
   flex: 1;
