@@ -130,3 +130,10 @@ export function formatDate(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
 }
+
+export function formatDateTime(iso: string): string {
+  const d = new Date(iso);
+  const time = d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  const date = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
+  return `${time} ${date}`;
+}

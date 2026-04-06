@@ -465,7 +465,8 @@ body {
 .cd-wrap {
   display: flex;
   flex-direction: column;
-  height: calc(100svh - 60px);
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -495,16 +496,31 @@ body {
   background: #17212b;
   border-top: 1px solid #1e2e3d;
   padding: 10px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
-.cd-back-btn {
+.cd-continue-btn {
   width: 100%;
-  background: #1e2e3d;
-  color: #5ba3e0;
+  background: #5ba3e0;
+  color: white;
   border: none;
   border-radius: 12px;
   padding: 13px;
   font-size: 15px;
   font-weight: 600;
+  cursor: pointer;
+}
+.cd-continue-btn:hover { background: #4a92cf; }
+.cd-back-btn {
+  width: 100%;
+  background: #1e2e3d;
+  color: #7aa5c0;
+  border: none;
+  border-radius: 12px;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
 }
 .cd-back-btn:hover { background: #243a4d; }

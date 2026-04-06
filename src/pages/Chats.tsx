@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { fetchChats, switchDialog, newDialog, renameDialog, deleteDialog, fetchMessages, MODEL_DISPLAY, MODEL_ICON, formatDate } from '../api';
+import { fetchChats, switchDialog, newDialog, renameDialog, deleteDialog, fetchMessages, MODEL_DISPLAY, MODEL_ICON, formatDate, formatDateTime } from '../api';
 import type { ChatData, MessageItem } from '../api';
 
 function getChatId(): number | null {
@@ -154,7 +154,7 @@ export default function ChatsPage() {
                     children: msg.content
                   })}
                 />
-                <div className="cd-msg-time">{formatDate(msg.created_at)}</div>
+                <div className="cd-msg-time">{formatDateTime(msg.created_at)}</div>
               </div>
             );
           })}
@@ -162,6 +162,19 @@ export default function ChatsPage() {
         </div>
 
         <div className="cd-footer">
+          <button
+            className="cd-continue-btn"
+            onClick={() => {
+              const tgWebApp = (window as any).Telegram?.WebApp;
+              if (tgWebApp?.openTelegramLink) {
+                tgWebApp.openTelegramLink('https://t.me/OpenGateAI_bot');
+              } else if (tgWebApp?.close) {
+                tgWebApp.close();
+              }
+            }}
+          >
+            💬 Продолжить в боте
+          </button>
           <button className="cd-back-btn" onClick={() => setViewConv(null)}>← Назад к диалогам</button>
         </div>
       </div>
