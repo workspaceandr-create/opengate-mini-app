@@ -482,23 +482,41 @@ body {
 .cd-title { color: #e8f4fd; font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cd-model { color: #5ba3e0; font-size: 12px; margin-top: 2px; }
 
-.cd-open-bot {
+.cd-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #17212b;
+  border-top: 1px solid #1e2e3d;
+  padding: 10px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 50;
+}
+.cd-footer-hint {
+  color: #5a7a8a;
+  font-size: 12px;
+}
+.cd-continue-btn {
+  width: 100%;
   background: #5ba3e0;
-  border: none;
   color: white;
-  font-size: 13px;
+  border: none;
+  border-radius: 12px;
+  padding: 13px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  padding: 7px 12px;
-  border-radius: 10px;
-  white-space: nowrap;
-  flex-shrink: 0;
 }
+.cd-continue-btn:hover { background: #4a92cf; }
 
 .cd-messages {
   flex: 1;
   overflow-y: auto;
-  padding: 12px 12px 80px;
+  padding: 12px 12px 110px;
   display: flex;
   flex-direction: column;
   gap: 8px;
