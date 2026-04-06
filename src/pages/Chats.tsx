@@ -125,6 +125,7 @@ export default function ChatsPage() {
     return (
       <div className="cd-wrap">
         <div className="cd-header">
+          <button className="cd-back-btn-top" onClick={() => setViewConv(null)}>←</button>
           <div className="cd-info">
             <div className="cd-title">{viewConv.title}</div>
             <div className="cd-model">{icon} {modelName}</div>
@@ -175,7 +176,6 @@ export default function ChatsPage() {
           >
             💬 Продолжить в боте
           </button>
-          <button className="cd-back-btn" onClick={() => setViewConv(null)}>← Назад к диалогам</button>
         </div>
       </div>
     );

@@ -30,6 +30,8 @@ body {
 .screen-chats {
   overflow: hidden;
   padding-bottom: 0;
+  height: calc(100svh - 60px);
+  max-height: calc(100svh - 60px);
 }
 
 /* ===== BOTTOM NAV ===== */
@@ -474,9 +476,23 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 16px 14px 12px;
+  padding: 12px 14px;
   border-bottom: 1px solid #1e2e3d;
   flex-shrink: 0;
+  background: #0f1923;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.cd-back-btn-top {
+  background: none;
+  border: none;
+  color: #5ba3e0;
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px 8px 4px 0;
+  flex-shrink: 0;
+  line-height: 1;
 }
 .cd-info { flex: 1; min-width: 0; }
 .cd-title { color: #e8f4fd; font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
