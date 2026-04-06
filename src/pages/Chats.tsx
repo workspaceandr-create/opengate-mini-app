@@ -46,8 +46,15 @@ export default function ChatsPage() {
     const id = getChatId();
     if (!id) { setNoUser(true); setLoading(false); return; }
     setChatId(id);
+    const openActive = new URLSearchParams(window.location.search).get('open') === 'active';
     fetchChats(id)
-      .then(setChats)
+      .then(chats => {
+        setChats(chats);
+        if (openActive) {
+          const active = chats.find(c => c.status === 'active');
+          if (active) handleOpenConv(active, id);
+        }
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -58,13 +65,14 @@ export default function ChatsPage() {
     }
   }, [messages]);
 
-  async function handleOpenConv(conv: ChatData) {
-    if (!chatId) return;
+  async function handleOpenConv(conv: ChatData, id?: number) {
+    const cid = id ?? chatId;
+    if (!cid) return;
     setViewConv(conv);
     setMessages([]);
     setMsgsLoading(true);
     try {
-      const msgs = await fetchMessages(chatId, conv.conversation_id);
+      const msgs = await fetchMessages(cid, conv.conversation_id);
       setMessages(msgs);
     } catch {}
     setMsgsLoading(false);
