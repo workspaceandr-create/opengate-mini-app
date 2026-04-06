@@ -167,11 +167,7 @@ export default function ChatsPage() {
             className="cd-continue-btn"
             onClick={() => {
               const tgWebApp = (window as any).Telegram?.WebApp;
-              if (tgWebApp?.openTelegramLink) {
-                tgWebApp.openTelegramLink('https://t.me/OpenGateAI_bot');
-              } else if (tgWebApp?.close) {
-                tgWebApp.close();
-              }
+              tgWebApp?.close?.();
             }}
           >
             💬 Продолжить в боте
