@@ -123,7 +123,7 @@ export default function ChatsPage() {
     const modelName = MODEL_DISPLAY[viewConv.model_key] ?? viewConv.model_key;
 
     return (
-      <>
+      <div className="cd-wrap">
         <div className="cd-header">
           <div className="cd-info">
             <div className="cd-title">{viewConv.title}</div>
@@ -164,7 +164,7 @@ export default function ChatsPage() {
         <div className="cd-footer">
           <button className="cd-back-btn" onClick={() => setViewConv(null)}>← Назад к диалогам</button>
         </div>
-      </>
+      </div>
     );
   }
 

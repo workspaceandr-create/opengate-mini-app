@@ -20,7 +20,7 @@ export default function App() {
 
   return (
     <>
-      <div className="screen">
+      <div className={`screen${activeTab === 'chats' ? ' screen-chats' : ''}`}>
         {activeTab === 'chats' && <ChatsPage />}
         {activeTab === 'agents' && <AgentsPage />}
         {activeTab === 'home' && <HomePage onNavigate={setActiveTab} />}
