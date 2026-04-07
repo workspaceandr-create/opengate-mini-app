@@ -166,8 +166,8 @@ export default function ChatsPage() {
                   </div>
                 ) : isImage && imageUrl ? (
                   <a className="cd-image-wrap" href={imageUrl} target="_blank" rel="noreferrer">
-                    <img className="cd-image-thumb" src={imageUrl} alt="Сгенерированное изображение" />
-                    <div className="cd-image-hint">🔍 Открыть</div>
+                    <div className="cd-image-placeholder">🖼</div>
+                    <div className="cd-image-hint">🔍 Открыть изображение</div>
                   </a>
                 ) : !isUser ? (
                   <div className="cd-bubble" dangerouslySetInnerHTML={{ __html: msg.content }} />
