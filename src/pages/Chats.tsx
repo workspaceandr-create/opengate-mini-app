@@ -153,16 +153,20 @@ export default function ChatsPage() {
           )}
           {messages.map((msg, i) => {
             const isUser = msg.role === 'user';
+            const isPhoto = isUser && msg.content.startsWith('[Фото]');
+            const photoCaption = isPhoto ? msg.content.replace('[Фото]', '').trim() : '';
             return (
               <div key={i} className={`cd-msg ${isUser ? 'cd-msg-user' : 'cd-msg-bot'}`}>
-                <div
-                  className="cd-bubble"
-                  {...(!isUser ? {
-                    dangerouslySetInnerHTML: { __html: msg.content }
-                  } : {
-                    children: msg.content
-                  })}
-                />
+                {isPhoto ? (
+                  <div className="cd-bubble cd-bubble-photo">
+                    <span className="cd-photo-icon">📷</span>
+                    {photoCaption && <span className="cd-photo-caption">{photoCaption}</span>}
+                  </div>
+                ) : !isUser ? (
+                  <div className="cd-bubble" dangerouslySetInnerHTML={{ __html: msg.content }} />
+                ) : (
+                  <div className="cd-bubble">{msg.content}</div>
+                )}
                 <div className="cd-msg-time">{formatDateTime(msg.created_at)}</div>
               </div>
             );
@@ -187,7 +191,7 @@ export default function ChatsPage() {
 
   // ===== CHATS LIST =====
   return (
-    <>
+    <div className="chats-list-wrap">
       <div className="page-header">
         <span className="page-title">Мои диалоги</span>
         <button className="btn-new" onClick={handleNew} disabled={creating}>
@@ -281,6 +285,6 @@ export default function ChatsPage() {
           </div>
         );
       })}
-    </>
+    </div>
   );
 }

@@ -32,6 +32,15 @@ body {
   padding-bottom: 0;
   height: calc(100svh - 60px);
   max-height: calc(100svh - 60px);
+  display: flex;
+  flex-direction: column;
+}
+
+.chats-list-wrap {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding-bottom: 16px;
 }
 
 /* ===== BOTTOM NAV ===== */
@@ -571,6 +580,10 @@ body {
 .cd-msg-bot .cd-bubble b { font-weight: 700; color: #e8f4fd; }
 
 .cd-msg-time { color: #3a5a6a; font-size: 10px; margin-top: 3px; padding: 0 3px; }
+
+.cd-bubble-photo { display: flex; align-items: center; gap: 7px; }
+.cd-photo-icon { font-size: 18px; flex-shrink: 0; }
+.cd-photo-caption { font-size: 13px; }
 
 /* ===== TOAST ===== */
 .toast {
