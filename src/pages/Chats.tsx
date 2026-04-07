@@ -155,6 +155,8 @@ export default function ChatsPage() {
             const isUser = msg.role === 'user';
             const isPhoto = isUser && msg.content.startsWith('[Фото]');
             const photoCaption = isPhoto ? msg.content.replace('[Фото]', '').trim() : '';
+            const isImage = !isUser && msg.content.startsWith('[Изображение]');
+            const imageUrl = isImage ? msg.content.replace('[Изображение]', '').trim() : '';
             return (
               <div key={i} className={`cd-msg ${isUser ? 'cd-msg-user' : 'cd-msg-bot'}`}>
                 {isPhoto ? (
@@ -162,6 +164,11 @@ export default function ChatsPage() {
                     <span className="cd-photo-icon">📷</span>
                     {photoCaption && <span className="cd-photo-caption">{photoCaption}</span>}
                   </div>
+                ) : isImage && imageUrl ? (
+                  <a className="cd-image-wrap" href={imageUrl} target="_blank" rel="noreferrer">
+                    <img className="cd-image-thumb" src={imageUrl} alt="Сгенерированное изображение" />
+                    <div className="cd-image-hint">🔍 Открыть</div>
+                  </a>
                 ) : !isUser ? (
                   <div className="cd-bubble" dangerouslySetInnerHTML={{ __html: msg.content }} />
                 ) : (

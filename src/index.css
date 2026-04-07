@@ -585,6 +585,29 @@ body {
 .cd-photo-icon { font-size: 18px; flex-shrink: 0; }
 .cd-photo-caption { font-size: 13px; }
 
+.cd-image-wrap {
+  display: block;
+  border-radius: 12px;
+  overflow: hidden;
+  max-width: 240px;
+  text-decoration: none;
+  position: relative;
+  border: 1px solid #2a3a4a;
+}
+.cd-image-thumb {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  max-height: 240px;
+}
+.cd-image-hint {
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  font-size: 12px;
+  text-align: center;
+  padding: 5px;
+}
+
 /* ===== TOAST ===== */
 .toast {
   position: fixed;
