@@ -153,15 +153,31 @@ export default function ChatsPage() {
           )}
           {messages.map((msg, i) => {
             const isUser = msg.role === 'user';
-            const isPhoto = isUser && msg.content.startsWith('[Фото]');
-            const photoCaption = isPhoto ? msg.content.replace('[Фото]', '').trim() : '';
+            const isPhoto = isUser && msg.content.startsWith('[Фото');
+            let photoUrl = '';
+            let photoCaption = '';
+            if (isPhoto) {
+              const urlMatch = msg.content.match(/^\[Фото:([^\]]+)\](.*)/s);
+              if (urlMatch) {
+                photoUrl = urlMatch[1];
+                photoCaption = urlMatch[2].trim();
+              } else {
+                photoCaption = msg.content.replace('[Фото]', '').trim();
+              }
+            }
             const isImage = !isUser && msg.content.startsWith('[Изображение]');
             const imageUrl = isImage ? msg.content.replace('[Изображение]', '').trim() : '';
             return (
               <div key={i} className={`cd-msg ${isUser ? 'cd-msg-user' : 'cd-msg-bot'}`}>
                 {isPhoto ? (
                   <div className="cd-bubble cd-bubble-photo">
-                    <span className="cd-photo-icon">📷</span>
+                    {photoUrl ? (
+                      <a href={photoUrl} target="_blank" rel="noreferrer" className="cd-user-photo-link">
+                        <img className="cd-user-photo" src={photoUrl} alt="Фото" />
+                      </a>
+                    ) : (
+                      <span className="cd-photo-icon">📷</span>
+                    )}
                     {photoCaption && <span className="cd-photo-caption">{photoCaption}</span>}
                   </div>
                 ) : isImage && imageUrl ? (

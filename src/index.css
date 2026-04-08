@@ -584,6 +584,8 @@ body {
 .cd-bubble-photo { display: flex; align-items: center; gap: 7px; }
 .cd-photo-icon { font-size: 18px; flex-shrink: 0; }
 .cd-photo-caption { font-size: 13px; }
+.cd-user-photo-link { display: block; }
+.cd-user-photo { max-width: 220px; max-height: 220px; border-radius: 10px; display: block; object-fit: cover; }
 
 .cd-image-wrap {
   display: block;
